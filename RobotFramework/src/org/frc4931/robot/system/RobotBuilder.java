@@ -6,6 +6,8 @@
  */
 package org.frc4931.robot.system;
 
+import org.frc4931.robot.KickerController;
+import org.frc4931.robot.PIDCont;
 import org.frc4931.robot.component.Accelerometer;
 import org.frc4931.robot.component.AngleSensor;
 import org.frc4931.robot.component.CurrentSensor;
@@ -29,12 +31,13 @@ import org.frc4931.robot.hardware.HardwareTalonSRX;
 import org.frc4931.robot.hardware.PIDMotorWithAngle;
 
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * 
  */
 public class RobotBuilder {
-    public static Robot buildRobot() {
+    public static RobotParts buildRobot() {
         Componets componets = new Componets();
         
      // Build the power distro panel
@@ -54,20 +57,17 @@ public class RobotBuilder {
         Grabber grabber = new CompositeGrabber(new PIDMotorWithAngle(
                              componets.grabberLifter, ()->powerPanel.getCurrent(Properties.GRABBER_LIFTER_CURRENT),
                              componets.grabberEncoder, componets.grabberHome,
-                             Properties.GRABBER_TOLERANCE, Properties.GRABBER_MAX_CURRENT,
-                             0.1, 0, 0,
-                             Properties.GRABBER_MAX_LOWER_SPEED, Properties.GRABBER_MAX_RAISE_SPEED,
-                             Properties.GRABBER_MAX_ANGLE_DEGREES),
+                             Properties.GRABBER_MAX_CURRENT, Properties.GRABBER_MAX_ANGLE_DEGREES,
+                             new PIDCont()),
                              componets.grabberLeftGrabber, componets.grabberRightGrabber);
                 
         // Build the Kicker
         Kicker kicker          = new CompositeKicker(new PIDMotorWithAngle(
                                        componets.kickerMotor, componets.kickerCurrent,
                                        componets.kickerEncoder, componets.kickerHome,
-                                       Properties.KICKER_TOLERANCE, Properties.KICKER_MAX_CURRENT,
-                                       0.025, 0, 0,
-                                       Properties.KICKER_MAX_LOWER_SPEED, Properties.KICKER_MAX_RAISE_SPEED,
-                                       Properties.KICKER_MAX_ANGLE_DEGREES));
+                                       Properties.KICKER_TOLERANCE, Properties.KICKER_MAX_ANGLE_DEGREES,
+                                       new KickerController(Properties.KICKER_TOLERANCE, Properties.KICKER_MOVE_SPEEDS,
+                                                            Properties.KICKER_HOLD_SPEEDS, ()->(int)SmartDashboard.getNumber("toteCount"))));
         
         Switch canCapture      = componets.kickerSwitch;
         KickerSwitchSystem kss = new KickerSwitchSystem(kicker, canCapture);
@@ -84,7 +84,7 @@ public class RobotBuilder {
         
         OperatorInterface operator = new OperatorInterface(new LogitechAttack3D(Properties.JOYSTICK));
         
-        return new Robot(drive, accel, structure, powerPanel, operator, componets);
+        return new RobotParts(drive, accel, structure, powerPanel, operator, componets);
     }
     
     public static final class Componets {
@@ -125,20 +125,25 @@ public class RobotBuilder {
     private static final class Properties {
         /*-------CONSTANTS------*/
         private static final double GRABBER_ENCODER_PPD = 0.263;
-        private static final double GRABBER_MAX_CURRENT = 10;
-        private static final double GRABBER_TOLERANCE = 10;
+        private static final double GRABBER_MAX_CURRENT = 100;
+        private static final double GRABBER_TOLERANCE = 7;
         
         private static final double GRABBER_MAX_RAISE_SPEED = 0.75;
         private static final double GRABBER_MAX_LOWER_SPEED = 0.25;
         private static final double GRABBER_MAX_ANGLE_DEGREES = 90;
+        
+        private static final double[] KICKER_MOVE_SPEEDS =
+                new double[] {0.15, 0.26, 0.32, 0.430, 0, 0};
+        private static final double[] KICKER_HOLD_SPEEDS =
+                new double[] {0.0, 0.070, 0.140, 0.190, 0.297, 0.320};
         
         private static final double KICKER_MAX_RAISE_SPEED = 0.75;
         private static final double KICKER_MAX_LOWER_SPEED = 0.3;
         private static final double KICKER_MAX_ANGLE_DEGREES = 180;
         
         private static final double KICKER_ENCODER_PPD = 1.422;
-        private static final double KICKER_MAX_CURRENT = 25;
-        private static final double KICKER_TOLERANCE = 2;
+        private static final double KICKER_MAX_CURRENT = 200;
+        private static final double KICKER_TOLERANCE = 5;
         
         /*-------JOYSTICK------*/
         private static final int JOYSTICK = 0;

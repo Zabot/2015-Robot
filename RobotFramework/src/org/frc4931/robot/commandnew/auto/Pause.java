@@ -6,7 +6,7 @@
  */
 package org.frc4931.robot.commandnew.auto;
 
-import org.frc4931.robot.RobotManager;
+import org.frc4931.robot.Robot;
 import org.frc4931.robot.commandnew.Command;
 
 /**
@@ -22,12 +22,14 @@ public class Pause extends Command {
     
     @Override
     public void initialize() {
-        endTime = RobotManager.time() + t;
+        System.out.println("Pause start");
+        endTime = Robot.time() + t;
     }
     
     @Override
     public boolean execute() {
-        return RobotManager.time() > endTime;
+        if(Robot.time() > endTime) System.out.println("Time end");
+        return Robot.time() > endTime;
     }
 
 }

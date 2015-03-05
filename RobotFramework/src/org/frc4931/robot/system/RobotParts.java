@@ -13,7 +13,7 @@ import org.frc4931.robot.system.RobotBuilder.Componets;
 /**
  * 
  */
-public class Robot {
+public class RobotParts {
     public final DriveInterpreter drive;
     public final Accelerometer accelerometer;
     public final Superstructure structure;
@@ -21,7 +21,7 @@ public class Robot {
     public final OperatorInterface operator;
     public final Componets componets;
     
-    public Robot(DriveInterpreter drive, Accelerometer accelerometer, Superstructure structure, PowerPanel powerPanel, OperatorInterface operator, Componets componets) {
+    public RobotParts(DriveInterpreter drive, Accelerometer accelerometer, Superstructure structure, PowerPanel powerPanel, OperatorInterface operator, Componets componets) {
         this.drive = drive;
         this.accelerometer = accelerometer;
         this.structure = structure;

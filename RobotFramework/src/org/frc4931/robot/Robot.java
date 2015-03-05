@@ -7,6 +7,7 @@
 package org.frc4931.robot;
 
 import org.frc4931.robot.commandnew.Scheduler;
+import org.frc4931.robot.commandnew.auto.TransferTote;
 import org.frc4931.robot.commandnew.grabber.ToggleGrabber;
 import org.frc4931.robot.commandnew.grabber.ToggleGrabberLift;
 import org.frc4931.robot.commandnew.guardrail.ToggleGuardrail;
@@ -25,26 +26,27 @@ import org.frc4931.robot.subsystem.LoaderArm;
 import org.frc4931.robot.subsystem.Ramp;
 import org.frc4931.robot.subsystem.StackIndicatorLight;
 import org.frc4931.robot.subsystem.VisionSystem;
-import org.frc4931.robot.system.Robot;
 import org.frc4931.robot.system.RobotBuilder;
+import org.frc4931.robot.system.RobotParts;
 import org.frc4931.utils.Lifecycle;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class RobotManager extends IterativeRobot {
+public class Robot extends IterativeRobot {
     private static final long START_TIME = System.currentTimeMillis();
     public static final int NUMBER_OF_ADC_BITS = 12;
     
-    private static Robot robot;
+    private static RobotParts robot;
 
-    public Robot get() {
+    public RobotParts get() {
         return robot;
     }
 
     @Override
     public void robotInit() {
         robot = RobotBuilder.buildRobot();
-        
+        SmartDashboard.putNumber("toteCount", 0);
         SwitchListener.getInstance().onTriggered(robot.operator.toggleLift, ()->Scheduler.getInstance().add(new ToggleGrabberLift(robot.structure.grabber)));
         SwitchListener.getInstance().onTriggered(robot.operator.toggleClaw, ()->Scheduler.getInstance().add(new ToggleGrabber(robot.structure.grabber)));
         SwitchListener.getInstance().onTriggered(robot.operator.toggleRails, ()->Scheduler.getInstance().add(new ToggleGuardrail(robot.structure.ramp.rail)));
@@ -54,7 +56,7 @@ public class RobotManager extends IterativeRobot {
         SwitchListener.getInstance().onTriggered(robot.operator.kickerToTransfer, ()->Scheduler.getInstance().add(new MoveKickerToTransfer(robot.structure.kickerSystem.kicker)));
         SwitchListener.getInstance().onTriggered(robot.operator.kickerToGuardrail, ()->Scheduler.getInstance().add(new MoveKickerToGuardrail(robot.structure.kickerSystem.kicker)));
        
-        SwitchListener.getInstance().onTriggered(robot.operator.writeData, Logger.getInstance()::shutdown);
+        SwitchListener.getInstance().onTriggered(robot.operator.writeData, ()->Scheduler.getInstance().add(new TransferTote(robot.structure)));
         SwitchListener.getInstance().onTriggered(robot.operator.writeData, ()->System.out.println("DATA SAVED"));
         
         SwitchListener.getInstance().start();
@@ -78,10 +80,12 @@ public class RobotManager extends IterativeRobot {
         Logger.getInstance().register("Z Accel", ()->(int)(robot.componets.builtInAccel.getZacceleration()*1000));
         
         Logger.getInstance().startup();
+        
+        UpdateableManager.getInstancce().start();
     }
     
     public void activePeriodic() {
-        Scheduler.getInstance().step(time());
+        Scheduler.getInstance().step(0);
     }
     
     @Override
@@ -102,12 +106,14 @@ public class RobotManager extends IterativeRobot {
     
     @Override
     public void teleopInit() {
+        Scheduler.getInstance().killAll();
         robot.structure.ramp.lifter.lower();
         robot.structure.ramp.rail.open();
         robot.structure.grabber.open();
         
         robot.structure.kickerSystem.kicker.home();
         robot.structure.grabber.home();
+        Scheduler.getInstance().killAll();
     }
 
     @Override

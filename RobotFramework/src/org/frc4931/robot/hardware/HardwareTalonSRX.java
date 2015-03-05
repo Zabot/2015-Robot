@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.CANTalon.ControlMode;
  * @author Nathan Brown
  */
 public class HardwareTalonSRX {
-    private final CANTalon motor;
+    final CANTalon motor;
     private final double ppd;
     
     HardwareTalonSRX(int id, double pulsesPerDegree){
@@ -64,17 +64,19 @@ public class HardwareTalonSRX {
     
     public AngleSensor getAngleSensor() {
         return new AngleSensor() {
-            double zero;
+            int zero;
             
             @Override
             public double getAngle() {
-                return (motor.getEncPosition() / ppd) - zero;
+                return (motor.getEncPosition() - zero) / ppd;
             }
             
             @Override
             public void reset() {
-                motor.setPosition(0);
-                zero = motor.getEncPosition() * ppd;
+                System.out.println("position is "+motor.getEncPosition());
+                zero = motor.getEncPosition();
+                System.out.println("zero is "+zero);
+                System.out.println("position is "+((motor.getEncPosition())-zero));
             }
         };
     }

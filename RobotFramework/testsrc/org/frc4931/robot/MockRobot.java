@@ -14,7 +14,6 @@ import org.frc4931.robot.mock.MockMotorWithAngle;
 import org.frc4931.robot.mock.MockRelay;
 import org.frc4931.robot.mock.MockSolenoid;
 import org.frc4931.robot.mock.MockSwitch;
-import org.frc4931.robot.subsystem.Kicker.Position;
 
 import edu.wpi.first.wpilibj.TestableRobotState;
 import edu.wpi.first.wpilibj.Timer;
@@ -32,13 +31,13 @@ import static org.fest.assertions.Assertions.assertThat;
  * the {@link TestableRobotState}.
  */
 @Deprecated
-public class MockRobot implements RobotManager.Components {
+public class MockRobot implements Robot.Components {
     
     static {
         TestableRobotState.beginTeleopMode();   // must be done before anything else ...
     }
 
-    private final RobotManager.Systems systems;
+    private final Robot.Systems systems;
     private final MockRelay shifter = MockRelay.withOff();
     private final MockMotor leftDrive = MockMotor.stopped();
     // Right motor is physically oriented in the opposite direction...
@@ -62,7 +61,7 @@ public class MockRobot implements RobotManager.Components {
         systems = RobotBuilder.build(this);
     }
 
-    public RobotManager.Systems systems() {
+    public Robot.Systems systems() {
         return systems;
     }
 
@@ -285,19 +284,19 @@ public class MockRobot implements RobotManager.Components {
     }
     
     public void assertKickerDown() {
-        assertThat(kickerMotor.isAt(Position.DOWN.getAngle())).isEqualTo(true);
+//        assertThat(kickerMotor.isAt(Position.DOWN.getAngle())).isEqualTo(true);
     }
     
     public void assertKickerStep() {
-        assertThat(kickerMotor.isAt(Position.STEP.getAngle())).isEqualTo(true);
+//        assertThat(kickerMotor.isAt(Position.STEP.getAngle())).isEqualTo(true);
     }
     
     public void assertKickerTote() {
-        assertThat(kickerMotor.isAt(Position.TOTE.getAngle())).isEqualTo(true);
+//        assertThat(kickerMotor.isAt(Position.TOTE.getAngle())).isEqualTo(true);
     }
     
     public void assertKickerToteStep() {
-        assertThat(kickerMotor.isAt(Position.TOTE_STEP.getAngle())).isEqualTo(true);
+//        assertThat(kickerMotor.isAt(Position.TOTE_STEP.getAngle())).isEqualTo(true);
     }
     
     public void assertGrabberRaised() {

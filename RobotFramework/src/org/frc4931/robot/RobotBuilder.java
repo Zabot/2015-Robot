@@ -6,7 +6,7 @@
  */
 package org.frc4931.robot;
 
-import org.frc4931.robot.RobotManager.Systems;
+import org.frc4931.robot.Robot.Systems;
 import org.frc4931.robot.component.DataStream;
 import org.frc4931.robot.component.DriveTrain;
 import org.frc4931.robot.component.LimitedMotor;
@@ -25,7 +25,6 @@ import org.frc4931.robot.hardware.Hardware.Motors;
 import org.frc4931.robot.hardware.Hardware.Sensors.Switches;
 import org.frc4931.robot.hardware.Hardware.Solenoids;
 import org.frc4931.robot.hardware.HardwareTalonSRX;
-import org.frc4931.robot.hardware.PIDMotorWithAngle;
 import org.frc4931.robot.subsystem.DriveSystem;
 import org.frc4931.robot.subsystem.Guardrail;
 import org.frc4931.robot.subsystem.Kicker;
@@ -48,7 +47,7 @@ public class RobotBuilder {
      * @param components the components of the robot; may not be null
      * @return a new Systems instance; never null
      */
-    public static Systems build( RobotManager.Components components ) {
+    public static Systems build( Robot.Components components ) {
         DriveSystem driveSystem = buildDriveSystem(components);
         LoaderArm arm = buildLoaderArm(components);
         Ramp ramp = buildRamp(components);
@@ -57,7 +56,7 @@ public class RobotBuilder {
         return new Systems(driveSystem, arm, ramp, vision, stackIndicator);
     }
 
-    private static StackIndicatorLight buildStackIndicator(RobotManager.Components components) {
+    private static StackIndicatorLight buildStackIndicator(Robot.Components components) {
         return new StackIndicatorLight(new RIODuino(components.rioDuinoDataStream()));
     }
 
@@ -66,7 +65,7 @@ public class RobotBuilder {
      * @param components the components of the robot; may not be null
      * @return a new drive system instance; never null
      */
-    public static DriveSystem buildDriveSystem(RobotManager.Components components) {
+    public static DriveSystem buildDriveSystem(Robot.Components components) {
         return new DriveSystem(DriveTrain.create(components.leftDriveMotor(),
                                                  components.rightDriveMotor()),
                                components.shifter());
@@ -77,7 +76,7 @@ public class RobotBuilder {
      * @param components the components of the robot; may not be null
      * @return a new loader arm instance; never null
      */
-    public static LoaderArm buildLoaderArm(RobotManager.Components components) {
+    public static LoaderArm buildLoaderArm(Robot.Components components) {
         LimitedMotor armMotor = new LimitedMotor(components.armLifterActuator(),
                                                  components.armLifterUpperSwitch(),
                                                  components.armLifterLowerSwitch());
@@ -92,7 +91,7 @@ public class RobotBuilder {
      * @param components the components of the robot; may not be null
      * @return a new ramp instance; never null
      */
-    public static Ramp buildRamp(RobotManager.Components components) {
+    public static Ramp buildRamp(Robot.Components components) {
         RampLifter lifter = new RampLifter(components.rampLifterActuator());
         Guardrail rail = new Guardrail(new LimitedMotor(components.guardRailActuator(),
                                         components.guardRailOpenSwitch(),
@@ -106,7 +105,7 @@ public class RobotBuilder {
      * @param components the components of the robot; may not be null
      * @return a new loader arm instance; never null
      */
-    public static VisionSystem buildVision(RobotManager.Components components) {
+    public static VisionSystem buildVision(Robot.Components components) {
         return new VisionSystem(components.frontCameraName(), components.rearCameraName());
     }
     /**
@@ -122,7 +121,7 @@ public class RobotBuilder {
      * Get the robot components for the actual hardware.
      * @return the hardware components of the robot; never null
      */
-    public static RobotManager.Components components() {
+    public static Robot.Components components() {
         // Create the drive system ...
         Motor leftDriveMotor = Motor.compose(Motors.talon(Properties.LEFT_FRONT_DRIVE),
                                              Motors.talon(Properties.LEFT_REAR_DRIVE));
@@ -140,9 +139,9 @@ public class RobotBuilder {
                                                         Properties.GRABBER_CLAW_RETRACT,
                                                         Solenoid.Direction.EXTENDING);
         HardwareTalonSRX talon = Motors.talonSRX(Properties.KICKER_MOTOR, Properties.KICKER_PPD);
-        MotorWithAngle kickerMotor = new PIDMotorWithAngle(talon.getMotor(), talon.getCurrentSensor(), talon.getAngleSensor(),
-                                                           talon.getHomeSwitch(), Properties.KICKER_TOLERANCE, Properties.KICKER_MAX_CURRENT,
-                                                           1, 0, 0, 0.5, 0.5, 180);
+        MotorWithAngle kickerMotor = null; //new PIDMotorWithAngle(talon.getMotor(), talon.getCurrentSensor(), talon.getAngleSensor(),
+                                           //                talon.getHomeSwitch(), Properties.KICKER_TOLERANCE, Properties.KICKER_MAX_CURRENT,
+                                           //                 1, 0, 0, 0.5, 0.5, 180);
         Switch canGrab = Switches.normallyClosed(Properties.GRABBER_SWITCH_CANGRAB);
         Switch didGrab = Switches.normallyClosed(Properties.GRABBER_SWITCH_DIDGRAB);
 
@@ -161,7 +160,7 @@ public class RobotBuilder {
         DataStream rioDuinoDataStream = new SerialDataStream(new SerialPort(Properties.RIODUINO_SERIAL_BAUD,
                 Properties.RIODUINO_SERIAL_PORT));
 
-        return new RobotManager.Components() {
+        return new Robot.Components() {
 
             @Override
             public Relay shifter() {

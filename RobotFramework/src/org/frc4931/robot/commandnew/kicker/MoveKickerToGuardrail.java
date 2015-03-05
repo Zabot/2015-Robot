@@ -24,6 +24,7 @@ public class MoveKickerToGuardrail extends Command {
     @Override
     public boolean execute() {
         kicker.set(Position.GUARDRAIL);
+        System.out.println("Moving");
         return kicker.is(Position.GUARDRAIL);
     }
 }
